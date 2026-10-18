@@ -1,93 +1,112 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TikTok Downloader — IMZXS404 FORUM</title>
+
   <link rel="stylesheet" href="style.css" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
 </head>
 <body>
-  <div class="container">
-
-    <div class="top-creator">
-      <div class="creator-badge">IMZXS404 FORUM</div>
-    </div>
-
-    <header class="header">
-      <div class="logo" aria-hidden="true"><i class="fab fa-tiktok"></i></div>
-      <div>
-        <h1>TikTok <span class="highlight">Downloader</span></h1>
-        <p class="subtitle">Unduh video TikTok tanpa watermark — MP4, MP3, dan slideshow foto</p>
+  <div class="page-wrap">
+    <header class="topbar">
+      <div class="creator-left">
+        <span class="creator-badge">IMZXS404 FORUM</span>
+      </div>
+      <div class="lang-right">
+        <button class="lang-btn active">ID</button>
+        <button class="lang-btn">EN</button>
       </div>
     </header>
 
-    <main>
-      <section class="card main-card">
-        <div class="input-group">
-          <i class="fas fa-link icon-link"></i>
-          <input type="text" id="urlInput" placeholder="Tempel link TikTok di sini..." />
+    <main class="container">
+      <div class="hero">
+        <div class="logo"><i class="fab fa-tiktok"></i></div>
+        <div class="title-block">
+          <h1 class="title">TikTok <span class="accent">Downloader</span></h1>
+          <div class="subtitle">Unduh video TikTok tanpa watermark — MP4, MP3, dan slideshow foto</div>
+        </div>
+      </div>
+
+      <section class="card input-card">
+        <div class="input-row">
+          <div class="input-group">
+            <i class="fas fa-link"></i>
+            <input id="urlInput" type="text" placeholder="Tempel link TikTok di sini..." />
+          </div>
+
+          <div class="select-group">
+            <select id="formatSelect" aria-label="Pilih format">
+              <option value="mp4">MP4 (Video Tanpa Watermark)</option>
+              <option value="mp3">MP3 (Audio Saja)</option>
+            </select>
+          </div>
+
+          <button id="downloadBtn" class="primary" onclick="fetchData()"><i class="fas fa-bolt"></i> Unduh Sekarang</button>
         </div>
 
-        <div class="select-group">
-          <select id="formatSelect" aria-label="Pilih format">
-            <option value="mp4">MP4 (Video Tanpa Watermark)</option>
-            <option value="mp3">MP3 (Audio Saja)</option>
-          </select>
-        </div>
-
-        <button id="downloadBtn" onclick="fetchData()"><i class="fas fa-bolt"></i> Unduh Sekarang</button>
         <div id="loader" class="loader hidden" aria-hidden="true"></div>
+      </section>
+
+      <section class="features-grid">
+        <div class="feature">
+          <div class="icon"><i class="fas fa-bolt"></i></div>
+          <div class="label">SUPER CEPAT</div>
+        </div>
+        <div class="feature">
+          <div class="icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="label">AMAN</div>
+        </div>
+        <div class="feature">
+          <div class="icon"><i class="fas fa-star"></i></div>
+          <div class="label">KUALITAS TINGGI</div>
+        </div>
+        <div class="feature">
+          <div class="icon"><i class="fas fa-mobile-alt"></i></div>
+          <div class="label">RESPONSIF</div>
+        </div>
       </section>
 
       <section id="resultArea" class="card result-card hidden" aria-live="polite">
         <div class="user-info">
           <h3 id="resUsername">Pengguna</h3>
-          <div class="stats">
-            <span title="Views"><i class="fas fa-play"></i> <span id="resViews">0</span></span>
-            <span title="Likes"><i class="fas fa-heart"></i> <span id="resLikes">0</span></span>
-          </div>
+          <div class="stats"><span title="Views"><i class="fas fa-play"></i> <span id="resViews">0</span></span><span title="Likes"><i class="fas fa-heart"></i> <span id="resLikes">0</span></span></div>
         </div>
 
         <div id="videoContainer" class="hidden">
           <video id="videoPlayer" controls preload="metadata"></video>
           <div class="action-buttons">
-            <a id="btnVideoNowm" href="#" target="_blank" class="btn-secondary">Unduh Video (Tanpa WM)</a>
-            <a id="btnAudio" href="#" target="_blank" class="btn-secondary outline">Unduh Audio (MP3)</a>
+            <a id="btnVideoNowm" class="btn-secondary" href="#" target="_blank" rel="noopener">Unduh Video (Tanpa WM)</a>
+            <a id="btnAudio" class="btn-secondary outline" href="#" target="_blank" rel="noopener">Unduh Audio (MP3)</a>
           </div>
         </div>
 
         <div id="photoContainer" class="hidden">
-          <div class="slider-wrapper">
-            <div class="slider" id="sliderTrack"></div>
-          </div>
-
+          <div class="slider-wrapper"><div class="slider" id="sliderTrack"></div></div>
           <div class="slider-controls">
             <button onclick="moveSlide(-1)" aria-label="Sebelumnya">&#10094;</button>
             <span id="slideCounter">0 / 0</span>
             <button onclick="moveSlide(1)" aria-label="Selanjutnya">&#10095;</button>
           </div>
-
-          <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+          <div class="photo-actions">
             <button id="btnDownloadCurrentSlide" class="btn-secondary">Unduh Foto Ini</button>
-            <button id="downloadAllBtn" class="btn-secondary outline">Unduh Semua Foto (Zip)</button>
+            <button id="downloadAllBtn" class="btn-secondary outline">Unduh Semua (Zip)</button>
           </div>
         </div>
       </section>
 
-      <section class="features-grid">
-        <div class="feature-item"><div class="icon-circle"><i class="fas fa-bolt"></i></div><span>SUPER CEPAT</span></div>
-        <div class="feature-item"><div class="icon-circle"><i class="fas fa-shield-alt"></i></div><span>AMAN</span></div>
-        <div class="feature-item"><div class="icon-circle"><i class="fas fa-star"></i></div><span>KUALITAS TINGGI</span></div>
-        <div class="feature-item"><div class="icon-circle"><i class="fas fa-mobile-alt"></i></div><span>RESPONSIF</span></div>
-      </section>
-
       <section class="card instructions">
         <h2><i class="fas fa-book-open"></i> Cara Penggunaan</h2>
-        <div class="step"><div class="step-num">1</div><p>Buka aplikasi TikTok lalu pilih video, tekan "Bagikan" dan salin link.</p></div>
-        <div class="step"><div class="step-num">2</div><p>Tempel link TikTok pada kotak di atas.</p></div>
-        <div class="step"><div class="step-num">3</div><p>Pilih format (MP4/MP3), lalu klik "Unduh Sekarang" dan simpan file.</p></div>
-        <p style="color:var(--muted);margin-top:10px;font-size:0.95rem">Catatan: Jika video tidak bisa diunduh langsung, gunakan tombol download yang muncul atau buka tautan di tab baru.</p>
+
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-text">Buka aplikasi TikTok → pilih video, tekan "Bagikan" → "Salin tautan".</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text">Kembali ke situs ini, tempel link ke kotak input.</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text">Pilih format (MP4/MP3) lalu klik "Unduh Sekarang".</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-text">Gunakan tombol unduh pada hasil untuk menyimpan file.</div></div>
+        </div>
+
+        <p class="note">Catatan: Jika preview tidak muncul, coba buka tautan hasil di tab baru atau periksa ulang tautan sumber.</p>
       </section>
 
       <footer class="footer">IMZXS404 FORUM © 2026</footer>
