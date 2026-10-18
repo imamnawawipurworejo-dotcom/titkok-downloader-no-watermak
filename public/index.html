@@ -1,120 +1,299 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Downloader</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TikTok Downloader — IMZXS404 FORUM</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Simple inline polish so the page looks better immediately */
+    :root{
+      --accent:#fe2c55;
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa3b2;
+      --glass: rgba(255,255,255,0.03);
+      color-scheme: dark;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{background:linear-gradient(180deg,#071022 0%, #071828 60%);display:flex;align-items:center;justify-content:center;padding:28px;}
+    .container{width:100%;max-width:980px}
+    .top-creator{
+      display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;
+    }
+    .creator-badge{
+      background:linear-gradient(90deg,var(--accent),#ff7a90);padding:10px 14px;border-radius:10px;color:#fff;font-weight:700;
+      box-shadow:0 6px 20px rgba(255,44,85,0.12);letter-spacing:1px;font-size:0.95rem;
+    }
+    .lang-toggle button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:8px 10px;border-radius:8px;margin-left:8px;cursor:pointer}
+    .header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    .logo i{font-size:42px;color:var(--accent)}
+    h1{margin:0;font-size:1.7rem;color:#fff}
+    .highlight{color:var(--accent)}
+    .subtitle{margin:4px 0 0;color:var(--muted)}
+    .card{background:var(--card);padding:18px;border-radius:12px;color:#e6eef7;box-shadow:0 6px 30px rgba(2,6,23,0.6);margin-bottom:14px}
+    .main-card{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+    .input-group{flex:1;display:flex;align-items:center;background:var(--glass);padding:10px;border-radius:10px}
+    .input-group .icon-link{margin-right:10px;color:var(--muted)}
+    input[type=text]{background:transparent;border:0;color:#fff;outline:none;flex:1;font-size:0.95rem}
+    .select-group{position:relative}
+    select{padding:10px;border-radius:10px;border:0;background:rgba(255,255,255,0.02);color:#fff}
+    button#downloadBtn{background:var(--accent);border:0;color:#fff;padding:10px 16px;border-radius:10px;font-weight:700;cursor:pointer}
+    .loader{width:36px;height:36px;border-radius:50%;border:4px solid rgba(255,255,255,0.06);border-top-color:var(--accent);animation:spin 1s linear infinite}
+    .hidden{display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+    .feature-item{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;display:flex;align-items:center;gap:10px;justify-content:center;flex-direction:column}
+    .icon-circle{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center}
+    .instructions .step{display:flex;gap:12px;align-items:center;margin-top:10px}
+    .step-num{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .footer{text-align:center;color:var(--muted);margin-top:8px;font-size:0.9rem}
+    /* result area small tweaks */
+    .result-card .user-info{display:flex;justify-content:space-between;align-items:center}
+    .result-card h3{margin:0}
+    .stats span{display:inline-flex;gap:6px;align-items:center;color:var(--muted);margin-left:10px}
+    .slider-wrapper{background:rgba(255,255,255,0.02);padding:8px;border-radius:10px;min-height:140px;display:flex;align-items:center;justify-content:center}
+    .slider img{max-width:100%;height:auto;border-radius:8px}
+    .action-buttons{display:flex;gap:10px;margin-top:10px}
+    .btn-secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;color:#fff;text-decoration:none}
+    .btn-secondary.outline{background:transparent;border-style:dashed}
+    @media (max-width:700px){
+      .features-grid{grid-template-columns:repeat(2,1fr)}
+      .header{flex-direction:row;gap:8px}
+    }
+  </style>
 </head>
 <body>
-
-    <div class="container">
-        
-        <div class="header">
-            <div class="logo">
-                <i class="fab fa-tiktok" style="font-size: 3rem; color: #fe2c55;"></i>
-            </div>
-            <h1>TikTok <span class="highlight">Downloader</span></h1>
-            <p class="subtitle">High-quality Video (No WM) & Photo Slideshows</p>
-        </div>
-
-        <div class="card main-card">
-            <div class="input-group">
-                <i class="fas fa-link icon-link"></i>
-                <input type="text" id="urlInput" placeholder="Paste TikTok link here...">
-            </div>
-
-            <div class="select-group">
-                <select id="formatSelect">
-                    <option value="mp4">MP4 (Video No Watermark)</option>
-                    <option value="mp3">MP3 (Audio Only)</option>
-                </select>
-                <i class="fas fa-chevron-down icon-select"></i>
-            </div>
-
-            <button id="downloadBtn" onclick="fetchData()">
-                <i class="fas fa-bolt"></i> Download Now
-            </button>
-            <div id="loader" class="loader hidden"></div>
-        </div>
-
-        <div id="resultArea" class="card result-card hidden">
-            <div class="user-info">
-                <h3 id="resUsername">Username</h3>
-                <div class="stats">
-                    <span><i class="fas fa-play"></i> <span id="resViews">0</span></span>
-                    <span><i class="fas fa-heart"></i> <span id="resLikes">0</span></span>
-                </div>
-            </div>
-
-            <div id="videoContainer" class="hidden">
-                <video id="videoPlayer" controls></video>
-                <div class="action-buttons">
-                    <a id="btnVideoNowm" href="#" target="_blank" class="btn-secondary">Download Video (No WM)</a>
-                    <a id="btnAudio" href="#" target="_blank" class="btn-secondary outline">Download Audio</a>
-                </div>
-            </div>
-
-            <div id="photoContainer" class="hidden">
-                <div class="slider-wrapper">
-                    <div class="slider" id="sliderTrack">
-                        </div>
-                </div>
-                <div class="slider-controls">
-                    <button onclick="moveSlide(-1)">&#10094;</button>
-                    <span id="slideCounter">1 / 5</span>
-                    <button onclick="moveSlide(1)">&#10095;</button>
-                </div>
-                <button id="btnDownloadCurrentSlide" class="btn-secondary" style="margin-top: 15px;">
-                    Download This Photo
-                </button>
-                <button id="downloadAllBtn" class="btn-secondary outline" style="margin-top: 10px;">
-                    Download All Photos (Zip)
-                </button>
-            </div>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-item">
-                <div class="icon-circle"><i class="fas fa-bolt"></i></div>
-                <span>SUPER FAST</span>
-            </div>
-            <div class="feature-item">
-                <div class="icon-circle"><i class="fas fa-shield-alt"></i></div>
-                <span>SECURE</span>
-            </div>
-            <div class="feature-item">
-                <div class="icon-circle"><i class="fas fa-star"></i></div>
-                <span>HIGH QUALITY</span>
-            </div>
-            <div class="feature-item">
-                <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
-                <span>RESPONSIVE</span>
-            </div>
-        </div>
-
-        <div class="card instructions">
-            <h2><i class="fas fa-book-open"></i> How to Use</h2>
-            <div class="step">
-                <div class="step-num">1</div>
-                <p>Open TikTok App & Copy Link</p>
-            </div>
-            <div class="step">
-                <div class="step-num">2</div>
-                <p>Paste Link in the box above</p>
-            </div>
-            <div class="step">
-                <div class="step-num">3</div>
-                <p>Click Download & Save MP3/MP4/Photo</p>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p>IMZXS404 FORUM © 2026</p>
-        </div>
+  <div class="container">
+    <!-- Top creator badge (CAPS) -->
+    <div class="top-creator">
+      <div class="creator-badge" aria-hidden="true">IMZXS404 FORUM</div>
+      <div class="lang-toggle" role="group" aria-label="Language toggle">
+        <button id="btnEn" data-lang="en">EN</button>
+        <button id="btnId" data-lang="id">ID</button>
+      </div>
     </div>
 
-    <script src="script.js"></script>
+    <header class="header" role="banner">
+      <div class="logo" aria-hidden="true">
+        <i class="fab fa-tiktok"></i>
+      </div>
+      <div>
+        <h1>
+          <span data-id="title">TikTok</span>
+          <span class="highlight" data-id="title-2">Downloader</span>
+        </h1>
+        <p class="subtitle" data-id="subtitle">High-quality Video (No WM) • Foto • SlideShow</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="card main-card" aria-labelledby="download-heading">
+        <div style="flex-basis:100%" id="download-heading" class="hidden">Download</div>
+
+        <div class="input-group" aria-hidden="false">
+          <i class="fas fa-link icon-link"></i>
+          <input type="text" id="urlInput" placeholder="Paste TikTok link here..." data-en="Paste TikTok link here..." data-id="Tempel link TikTok di sini..." />
+        </div>
+
+        <div class="select-group">
+          <select id="formatSelect" aria-label="Choose format">
+            <option value="mp4" data-en="MP4 (Video No Watermark)" data-id="MP4 (Video Tanpa Watermark)">MP4 (Video No Watermark)</option>
+            <option value="mp3" data-en="MP3 (Audio Only)" data-id="MP3 (Audio Saja)">MP3 (Audio Only)</option>
+          </select>
+        </div>
+
+        <button id="downloadBtn" onclick="fetchData()">
+          <i class="fas fa-bolt"></i>
+          <span data-en="Download Now" data-id="Unduh Sekarang">Download Now</span>
+        </button>
+
+        <div id="loader" class="loader hidden" aria-hidden="true"></div>
+      </section>
+
+      <section id="resultArea" class="card result-card hidden" aria-live="polite">
+        <div class="user-info">
+          <h3 id="resUsername">Username</h3>
+          <div class="stats">
+            <span title="Views"><i class="fas fa-play"></i> <span id="resViews">0</span></span>
+            <span title="Likes"><i class="fas fa-heart"></i> <span id="resLikes">0</span></span>
+          </div>
+        </div>
+
+        <div id="videoContainer" class="hidden" aria-hidden="true">
+          <video id="videoPlayer" controls preload="metadata" style="width:100%;border-radius:8px;background:#000"></video>
+          <div class="action-buttons">
+            <a id="btnVideoNowm" href="#" target="_blank" class="btn-secondary" rel="noopener">Download Video (No WM)</a>
+            <a id="btnAudio" href="#" target="_blank" class="btn-secondary outline" rel="noopener">Download Audio</a>
+          </div>
+        </div>
+
+        <div id="photoContainer" class="hidden" aria-hidden="true">
+          <div class="slider-wrapper">
+            <div class="slider" id="sliderTrack"></div>
+          </div>
+
+          <div class="slider-controls" style="display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px">
+            <button onclick="moveSlide(-1)" aria-label="Previous slide">&#10094;</button>
+            <span id="slideCounter">1 / 1</span>
+            <button onclick="moveSlide(1)" aria-label="Next slide">&#10095;</button>
+          </div>
+
+          <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+            <button id="btnDownloadCurrentSlide" class="btn-secondary">Download This Photo</button>
+            <button id="downloadAllBtn" class="btn-secondary outline">Download All Photos (Zip)</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="features-grid" aria-hidden="false">
+        <div class="feature-item"><div class="icon-circle"><i class="fas fa-bolt"></i></div><span data-id="feat-fast">SUPER FAST</span></div>
+        <div class="feature-item"><div class="icon-circle"><i class="fas fa-shield-alt"></i></div><span data-id="feat-secure">SECURE</span></div>
+        <div class="feature-item"><div class="icon-circle"><i class="fas fa-star"></i></div><span data-id="feat-quality">HIGH QUALITY</span></div>
+        <div class="feature-item"><div class="icon-circle"><i class="fas fa-mobile-alt"></i></div><span data-id="feat-responsive">RESPONSIVE</span></div>
+      </section>
+
+      <section class="card instructions" aria-label="How to use">
+        <h2><i class="fas fa-book-open"></i> <span data-id="howto-title">How to Use / Cara Penggunaan</span></h2>
+        <div class="step"><div class="step-num">1</div><p data-id="step-1-en">Open TikTok App & Copy Link</p></div>
+        <div class="step"><div class="step-num">2</div><p data-id="step-2-en">Paste Link in the box above</p></div>
+        <div class="step"><div class="step-num">3</div><p data-id="step-3-en">Click Download & Save MP3/MP4/Photo</p></div>
+        <p style="color:var(--muted);margin-top:10px;font-size:0.9rem" data-id="note">
+          Teks ditulis secara alami dalam Bahasa Indonesia dan English — gaya manusia, hindari nuansa otomatis.
+        </p>
+      </section>
+
+      <footer class="footer">
+        <p>IMZXS404 FORUM © 2026</p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    /* Simple language toggle (EN/ID) — translates visible strings without reloading */
+    const btnEn = document.getElementById('btnEn');
+    const btnId = document.getElementById('btnId');
+    const allTrans = Array.from(document.querySelectorAll('[data-en], [data-id]'));
+
+    function setLang(lang){
+      allTrans.forEach(el=>{
+        const en = el.getAttribute('data-en');
+        const id = el.getAttribute('data-id');
+        if(lang === 'en'){
+          if(en) el.textContent = en;
+          // placeholders
+          if(el.placeholder && el.getAttribute('data-en')) el.placeholder = el.getAttribute('data-en');
+        } else {
+          if(id) el.textContent = id;
+          if(el.placeholder && el.getAttribute('data-id')) el.placeholder = el.getAttribute('data-id');
+        }
+      });
+      // optional small style to show active language
+      btnEn.style.opacity = lang === 'en' ? '1' : '0.6';
+      btnId.style.opacity = lang === 'id' ? '1' : '0.6';
+      document.documentElement.lang = lang === 'en' ? 'en' : 'id';
+    }
+    btnEn.addEventListener('click',()=>setLang('en'));
+    btnId.addEventListener('click',()=>setLang('id'));
+    // default to Indonesian
+    setLang('id');
+
+    /* Minimal client-side helpers for slides and loader (kept simple so you can wire real fetchData) */
+    let slides = [];
+    let currentSlide = 0;
+    const sliderTrack = document.getElementById('sliderTrack');
+    const slideCounter = document.getElementById('slideCounter');
+
+    function showResult({username='Unknown',views=0,likes=0,videoUrl=null, audioUrl=null, photos=[]} = {}){
+      document.getElementById('resUsername').textContent = username;
+      document.getElementById('resViews').textContent = views;
+      document.getElementById('resLikes').textContent = likes;
+      const resultArea = document.getElementById('resultArea');
+      resultArea.classList.remove('hidden');
+
+      if(videoUrl){
+        document.getElementById('videoContainer').classList.remove('hidden');
+        const vp = document.getElementById('videoPlayer');
+        vp.src = videoUrl;
+        document.getElementById('btnVideoNowm').href = videoUrl;
+      } else {
+        document.getElementById('videoContainer').classList.add('hidden');
+      }
+
+      if(audioUrl){
+        document.getElementById('btnAudio').href = audioUrl;
+        document.getElementById('btnAudio').classList.remove('hidden');
+      } else {
+        document.getElementById('btnAudio').classList.add('hidden');
+      }
+
+      if(photos && photos.length){
+        slides = photos;
+        currentSlide = 0;
+        renderSlides();
+        document.getElementById('photoContainer').classList.remove('hidden');
+      } else {
+        document.getElementById('photoContainer').classList.add('hidden');
+      }
+    }
+
+    function renderSlides(){
+      sliderTrack.innerHTML = '';
+      if(!slides.length){ slideCounter.textContent = '0 / 0'; return; }
+      slides.forEach((src, idx)=>{
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'Slide ' + (idx+1);
+        img.style.display = idx === currentSlide ? 'block' : 'none';
+        sliderTrack.appendChild(img);
+      });
+      slideCounter.textContent = (currentSlide+1) + ' / ' + slides.length;
+    }
+
+    function moveSlide(dir){
+      if(!slides.length) return;
+      currentSlide = (currentSlide + dir + slides.length) % slides.length;
+      renderSlides();
+    }
+
+    // small helpers for loader
+    function showLoader(show){
+      const l = document.getElementById('loader');
+      if(show) { l.classList.remove('hidden'); } else { l.classList.add('hidden'); }
+    }
+
+    /* Placeholder fetchData — you should replace with real API call (kept human tone, no "AI-sloop") */
+    async function fetchData(){
+      const url = document.getElementById('urlInput').value.trim();
+      const format = document.getElementById('formatSelect').value;
+      if(!url){ alert('Silakan masukkan link TikTok. / Please enter a TikTok link.'); return; }
+      showLoader(true);
+
+      try{
+        // TODO: panggil endpoint backend Anda di sini. Contoh (dummy):
+        // const res = await fetch('/api/download?url='+encodeURIComponent(url)+'&format='+format);
+        // const data = await res.json();
+
+        // Demo data (hapus saat menghubungkan backend)
+        await new Promise(r=>setTimeout(r,850)); // simulate network
+        const data = {
+          username: 'example_user',
+          views: 12345,
+          likes: 678,
+          videoUrl: format === 'mp4' ? 'https://example.com/video_no_wm.mp4' : null,
+          audioUrl: format === 'mp3' ? 'https://example.com/audio.mp3' : null,
+          photos: ['https://picsum.photos/800/600?1','https://picsum.photos/800/600?2']
+        };
+
+        showResult(data);
+      }catch(err){
+        console.error(err);
+        alert('Terjadi kesalahan. Silakan coba lagi. / Something went wrong. Please try again.');
+      } finally {
+        showLoader(false);
+      }
+    }
+  </script>
 </body>
 </html>
