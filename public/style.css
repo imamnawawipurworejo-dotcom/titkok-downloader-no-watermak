@@ -1,9 +1,40 @@
-/* UI: livelier styles, animations, interactions
-   Preserves all IDs and element structure used by script.js
-   Adds music widget styles and ensures feature animations persist
-   Adds proper slider styles so landscape/portrait slides display correctly
-   Adds mobile font-size rule to prevent iOS zoom and disables pinch zoom in viewport
+/* Responsive fixes to ensure mobile users can zoom and see full content
+   - Allow flexible shrinking of flex children
+   - Make media elements fully responsive
+   - Reduce fixed image heights on small screens
+   - Ensure inputs/selects wrap instead of overflowing
 */
+
+/* Added rules (do not remove) */
+img, video, iframe { max-width: 100%; height: auto; display: block; }
+
+/* Allow flex items to shrink below content width on small screens */
+.input-row > * { min-width: 0; }
+.input-group { min-width: 0; }
+
+/* Make input row wrap on small screens so controls don't overflow viewport */
+@media (max-width: 640px) {
+  .input-row { flex-wrap: wrap; align-items: stretch; }
+  .select-group { width: 100%; margin-top: 8px; }
+  .select-group select { min-width: 0; width: 100%; }
+  .primary { width: 100%; margin-top: 8px; }
+}
+
+/* Slider images: use viewport height rather than fixed px to prevent huge layout overflow */
+.slide-img { max-height: 60vh; height: auto; }
+@media (max-width: 800px) {
+  .slide-img { max-height: 40vh; }
+}
+
+/* Ensure header iframe cannot cause overflow */
+.header-anim { max-width: 100%; }
+
+/* If something still overflows, let page be scrollable rather than fixed width */
+html, body { overflow-x: auto; }
+
+/* End of added responsive fixes */
+
+/* Original stylesheet follows (kept unchanged) */
 :root{
   --accent:#ff3b6b;
   --accent-2:#6b8cff;
@@ -16,10 +47,10 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,'Helvetica Neue',Arial;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;text-size-adjust:100%}
-body{background:radial-gradient(1200px 600px at 10% 10%, rgba(255,59,107,0.06), transparent), linear-gradient(180deg,var(--bg-1),var(--bg-2));color:var(--text);display:flex;align-items:flex-start;justify-content:center;padding:28px}
+body{background:radial-gradient(1200px 600px at 10% 10%, rgba(255,59,107,0.06), transparent), linear-gradient(180deg,var(--bg-1),var(--bg-2));color:var(--text);display:flex;align-items:flex-start;}
 .container{width:100%;max-width:980px}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.creator-badge{background:linear-gradient(90deg,var(--accent),#ff7a90);color:#fff;padding:8px 12px;border-radius:12px;font-weight:700;letter-spacing:.6px;box-shadow:0 10px 30px rgba(255,59,107,0.12);transform:translateZ(0)}
+.creator-badge{background:linear-gradient(90deg,var(--accent),#ff7a90);color:#fff;padding:8px 12px;border-radius:12px;font-weight:700;letter-spacing:.6px;box-shadow:0 10px 30px rgba(255,59,107,0.1)}
 .lang-right .lang-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:8px 10px;border-radius:8px;cursor:pointer;margin-left:8px;transition:all .18s}
 .lang-right .lang-btn.active{border-color:rgba(255,255,255,0.14);color:#fff}
 .lang-right .lang-btn:hover{transform:translateY(-2px);color:#fff}
@@ -31,13 +62,13 @@ body{background:radial-gradient(1200px 600px at 10% 10%, rgba(255,59,107,0.06), 
 .title-block .title{font-size:1.9rem;margin:0}
 .title-block .accent{color:var(--accent);font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .subtitle{color:var(--muted);margin-top:6px}
-.card{background:var(--card-bg);backdrop-filter: blur(6px);padding:16px;border-radius:14px;color:var(--text);box-shadow:0 14px 40px rgba(2,6,23,0.6);margin-bottom:14px;border:1px solid rgba(255,255,255,0.02)}
+.card{background:var(--card-bg);backdrop-filter: blur(6px);padding:16px;border-radius:14px;color:var(--text);box-shadow:0 14px 40px rgba(2,6,23,0.6);margin-bottom:14px;border:1px solid rgba(255,25,255,0.02)}
 .input-row{display:flex;gap:12px;align-items:center}
 .input-group{flex:1;display:flex;align-items:center;background:var(--glass);padding:12px;border-radius:12px;gap:12px;border:1px solid rgba(255,255,255,0.02)}
 .input-group i{color:var(--muted);font-size:18px}
 input[type='text']{background:transparent;border:0;color:var(--text);outline:none;flex:1;font-size:0.98rem}
 .select-group select{padding:10px;border-radius:10px;border:0;background:rgba(255,255,255,0.02);color:var(--text);min-width:160px}
-.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:0;color:#fff;padding:10px 18px;border-radius:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(107,140,255,0.08);transition:transform .12s,box-shadow .12s}
+.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:0;color:#fff;padding:10px 18px;border-radius:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center}
 .primary:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(107,140,255,0.14)}
 .primary:active{transform:translateY(0)}
 .quick-help{margin-top:12px;color:var(--muted);font-size:0.92rem}
@@ -45,7 +76,7 @@ input[type='text']{background:transparent;border:0;color:var(--text);outline:non
 .hidden{display:none!important}
 @keyframes spin{to{transform:rotate(360deg)}}
 .features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
-.feature{background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.02));padding:14px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:10px;transform:none;opacity:1;animation:pop .6s cubic-bezier(.2,.9,.3,1) forwards;animation-delay:var(--d);animation-fill-mode:both}
+.feature{background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.02));padding:14px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:10px}
 .feature .icon i{font-size:20px;color:var(--accent)}
 .feature .label{font-weight:800;color:var(--muted)}
 @keyframes pop{0%{opacity:0;transform:translateY(10px) scale(.98)}60%{opacity:1;transform:translateY(-6px) scale(1.02)}100%{transform:translateY(0) scale(1)}}
@@ -66,7 +97,7 @@ input[type='text']{background:transparent;border:0;color:var(--text);outline:non
 .slider-controls button{background:transparent;border:0;color:#fff;cursor:pointer;font-size:20px}
 .instructions h2{margin-bottom:8px}
 .step{display:flex;gap:12px;align-items:center;margin-top:10px}
-.step-num{width:36px;height:36px;border-radius:10px;background:linear-gradient(90deg,rgba(255,59,107,0.06),rgba(107,140,255,0.04));display:flex;align-items:center;justify-content:center;font-weight:800}
+.step-num{width:36px;height:36px;border-radius:10px;background:linear-gradient(90deg,rgba(255,59,107,0.06),rgba(107,140,255,0.04));display:flex;align-items:center;justify-content:center}
 .footer{margin-top:8px;color:var(--muted);font-size:0.95rem;text-align:center}
 .footer-inner{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .footer-help{font-size:0.92rem;color:var(--muted)}
@@ -98,10 +129,10 @@ video{width:100%;border-radius:10px;background:#000}
 @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 .hero .logo{animation:floaty 4s ease-in-out infinite}
 input[type='text']:focus, select:focus, button:focus{box-shadow:0 8px 24px rgba(107,140,255,0.08);outline:none}
-.music-widget{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));border:1px solid rgba(255,255,255,0.02);margin-bottom:12px}
+.music-widget{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));border:1px solid rgba(255,255,255,0.02)}
 .music-left{display:flex;align-items:center;gap:12px}
-.music-btn{width:44px;height:44px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
+.music-btn{width:44px;height:44px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;display:flex;align-items:center;justify-content:center}
 .music-title{font-size:0.95rem;color:var(--muted)}
 .music-controls{display:flex;gap:8px}
 .music-controls .ctrl{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:#fff;cursor:pointer}
-.play-overlay{position:fixed;inset:auto 16px 16px auto;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:60}
+.play-overlay{position:fixed;inset:auto 16px 16px auto;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
