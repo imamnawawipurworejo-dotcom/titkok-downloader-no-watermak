@@ -9,16 +9,24 @@ const headers = {
   'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36'
 };
 
+function sanitizeFilename(name) {
+  return String(name || 'download.bin')
+    .replace(/\\/g, '/')
+    .split('/').pop()
+    .replace(/[\\/:*?"<>|]+/g, '_')
+    .trim() || 'download.bin';
+}
+
 async function getCsrf() {
-  const res = await axios.get('https://savett.cc/en1/download');
+  const res = await axios.get('https://savett.cc/en1/download', { headers });
   return {
     csrf: res.data.match(/name="csrf_token" value="([^"]+)"/)?.[1],
-    cookie: res.headers['set-cookie'].map(v => v.split(';')[0]).join('; ')
+    cookie: res.headers['set-cookie']?.map(v => v.split(';')[0]).join('; ') || ''
   };
 }
 
 async function postUrl(url, csrf, cookie) {
-  const res = await axios.post('https://savett.cc/en1/download', 
+  const res = await axios.post('https://savett.cc/en1/download',
     `csrf_token=${encodeURIComponent(csrf)}&url=${encodeURIComponent(url)}`,
     { headers: { ...headers, Cookie: cookie } }
   );
@@ -27,8 +35,7 @@ async function postUrl(url, csrf, cookie) {
 
 function parseHtml(html) {
   const $ = cheerio.load(html);
-  
-  // Mengambil statistik dasar
+
   const stats = [];
   $('#video-info .my-1 span').each((_, el) => stats.push($(el).text().trim()));
 
@@ -45,7 +52,6 @@ function parseHtml(html) {
     slides: []
   };
 
-  // Cek jika Slide Foto
   const slides = $('.carousel-item[data-data]');
   if (slides.length) {
     data.type = 'photo';
@@ -62,7 +68,6 @@ function parseHtml(html) {
     return data;
   }
 
-  // Jika Video Biasa
   $('#formatselect option').each((_, el) => {
     const label = $(el).text().toLowerCase();
     const raw = $(el).attr('value');
@@ -87,15 +92,33 @@ function parseHtml(html) {
   return data;
 }
 
-// Vercel Serverless Function Handler
+async function proxyMediaDownload(targetUrl, filename) {
+  const response = await axios.get(targetUrl, {
+    responseType: 'stream',
+    maxRedirects: 10,
+    headers: {
+      ...headers,
+      Accept: '*/*',
+      Referer: 'https://savett.cc/en1/download',
+      Origin: 'https://savett.cc'
+    }
+  });
+
+  return {
+    contentType: response.headers['content-type'] || 'application/octet-stream',
+    contentLength: response.headers['content-length'],
+    data: response.data,
+    filename: sanitizeFilename(filename)
+  };
+}
+
 module.exports = async (req, res) => {
-  // CORS Configuration
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Download-Filename'
   );
 
   if (req.method === 'OPTIONS') {
@@ -103,7 +126,31 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { url } = req.query;
+  const { url, download } = req.query;
+
+  if (download === '1' || download === 'true') {
+    if (!url) {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+
+    try {
+      const fileName = req.headers['x-download-filename'] || 'download.bin';
+      const media = await proxyMediaDownload(String(url), fileName);
+
+      res.setHeader('Content-Type', media.contentType);
+      res.setHeader('Content-Length', media.contentLength || '');
+      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${sanitizeFilename(fileName)}"; filename*=UTF-8''${encodeURIComponent(sanitizeFilename(fileName))}`
+      );
+
+      media.data.pipe(res);
+      return;
+    } catch (error) {
+      return res.status(500).json({ error: 'Failed to proxy download', details: error.message });
+    }
+  }
 
   if (!url) {
     return res.status(400).json({ error: 'URL is required' });
@@ -113,9 +160,9 @@ module.exports = async (req, res) => {
     const { csrf, cookie } = await getCsrf();
     const html = await postUrl(url, csrf, cookie);
     const result = parseHtml(html);
-    
-    if(!result.username) {
-        throw new Error("Failed to parse or content not found");
+
+    if (!result.username) {
+      throw new Error('Failed to parse or content not found');
     }
 
     res.status(200).json(result);
