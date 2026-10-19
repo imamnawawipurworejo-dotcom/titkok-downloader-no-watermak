@@ -10,6 +10,10 @@ async function fetchData() {
     const videoContainer = document.getElementById('videoContainer');
     const photoContainer = document.getElementById('photoContainer');
 
+    const btnVideo = document.getElementById('btnVideoNowm');
+    const btnAudio = document.getElementById('btnAudio');
+    const videoPlayer = document.getElementById('videoPlayer');
+
     if (!url) return alert('Please paste a TikTok link first!');
 
     // UI Loading State
@@ -31,48 +35,77 @@ async function fetchData() {
 
         resultArea.classList.remove('hidden');
 
-        // Reset Displays
+        // Reset Displays and controls
         videoContainer.classList.add('hidden');
         photoContainer.classList.add('hidden');
 
+        // Reset video & audio controls to avoid leftover handlers
+        if (videoPlayer) {
+            videoPlayer.removeAttribute('src');
+            videoPlayer.load && videoPlayer.load();
+        }
+        if (btnVideo) {
+            btnVideo.removeAttribute('href');
+            btnVideo.onclick = null;
+            btnVideo.style.display = 'inline-block';
+        }
+        if (btnAudio) {
+            btnAudio.removeAttribute('href');
+            btnAudio.onclick = null;
+            btnAudio.style.display = 'none';
+        }
+
         if (data.type === 'video') {
             videoContainer.classList.remove('hidden');
-            const videoUrl = data.downloads.nowm[0] || data.downloads.wm[0];
-            const audioUrl = data.mp3[0];
+            const videoUrl = (data.downloads && (data.downloads.nowm && data.downloads.nowm[0])) || (data.downloads && data.downloads.wm && data.downloads.wm[0]);
+            const audioUrl = (data.mp3 && data.mp3[0]) || null;
             
             // Set Preview Video
-            document.getElementById('videoPlayer').src = videoUrl;
+            if (videoPlayer && videoUrl) {
+                videoPlayer.src = videoUrl;
+            }
             
             // --- LOGIKA TOMBOL VIDEO (Auto Download) ---
-            const btnVideo = document.getElementById('btnVideoNowm');
-            // Hapus href default agar tidak membuka tab
-            btnVideo.removeAttribute('href');
-            // Override klik dengan fungsi download paksa
-            btnVideo.onclick = (e) => {
-                e.preventDefault();
-                forceDownload(videoUrl, `${currentUsername}_video.mp4`, btnVideo);
-            };
+            if (btnVideo && videoUrl) {
+                // Hapus href default agar tidak membuka tab
+                btnVideo.removeAttribute('href');
+                // Override klik dengan fungsi download paksa
+                btnVideo.onclick = (e) => {
+                    e.preventDefault();
+                    forceDownload(videoUrl, `${currentUsername}_video.mp4`, btnVideo);
+                };
+            }
             
             // --- LOGIKA TOMBOL AUDIO (Auto Download & Fix Access Denied) ---
-            const btnAudio = document.getElementById('btnAudio');
-            if(audioUrl) {
-                btnAudio.style.display = 'block';
-                btnAudio.removeAttribute('href');
-                btnAudio.onclick = (e) => {
-                    e.preventDefault();
-                    forceDownload(audioUrl, `${currentUsername}_audio.mp3`, btnAudio);
-                };
-            } else {
-                btnAudio.style.display = 'none';
+            if (btnAudio) {
+                if(audioUrl) {
+                    btnAudio.style.display = 'inline-block';
+                    btnAudio.removeAttribute('href');
+                    btnAudio.onclick = (e) => {
+                        e.preventDefault();
+                        forceDownload(audioUrl, `${currentUsername}_audio.mp3`, btnAudio);
+                    };
+                } else {
+                    btnAudio.style.display = 'none';
+                    btnAudio.onclick = null;
+                }
             }
 
         } else if (data.type === 'photo') {
+            // Photo (slideshow) handling
             photoContainer.classList.remove('hidden');
-            setupSlider(data.slides);
+
+            // Ensure audio/download buttons for video are hidden
+            if (btnAudio) { btnAudio.style.display = 'none'; btnAudio.onclick = null; }
+            if (btnVideo) { btnVideo.style.display = 'none'; btnVideo.onclick = null; }
+
+            // Setup slider with proper sizing and horizontal layout
+            setupSlider(data.slides || []);
         }
 
     } catch (error) {
         alert('Error: ' + error.message);
+        console.error(error);
     } finally {
         btn.classList.remove('hidden');
         loader.classList.add('hidden');
@@ -138,39 +171,57 @@ async function forceDownload(url, filename, btnElement = null) {
 
 // --- Logic Slider Foto ---
 function setupSlider(slides) {
-    currentSlides = slides;
+    currentSlides = Array.isArray(slides) ? slides : [];
     currentSlideIndex = 0;
-    
+    const wrapper = document.querySelector('.slider-wrapper');
     const track = document.getElementById('sliderTrack');
+
+    // Ensure wrapper and track exist and are correctly styled via CSS
+    if (!track || !wrapper) return;
+
     track.innerHTML = ''; 
 
-    slides.forEach(slide => {
+    // Build slides as flex children with full-width
+    currentSlides.forEach(slide => {
+        const item = document.createElement('div');
+        item.className = 'slide-item';
         const img = document.createElement('img');
+        img.className = 'slide-img';
         img.src = slide.url;
-        track.appendChild(img);
+        img.alt = slide.alt || '';
+        // Prevent huge layout shifts by setting loading=lazy
+        img.loading = 'lazy';
+        item.appendChild(img);
+        track.appendChild(item);
     });
 
+    // If there are no slides, hide photoContainer
+    if (currentSlides.length === 0) {
+        document.getElementById('photoContainer').classList.add('hidden');
+        return;
+    }
+
+    // Update UI and bind download all
     updateSlideUI();
-    
-    // Tombol Download All (Looping Download)
+
     const downloadAllBtn = document.getElementById('downloadAllBtn');
-    downloadAllBtn.onclick = async () => {
-        const originalText = downloadAllBtn.innerText;
-        downloadAllBtn.innerText = "Downloading all photos...";
-        
-        for (let i = 0; i < currentSlides.length; i++) {
-            // Beri jeda 1 detik per foto agar browser tidak nge-freeze
-            await new Promise(r => setTimeout(r, 1000));
-            // Panggil fungsi download yang sama (tanpa tombol loading visual per foto)
-            await forceDownload(currentSlides[i].url, `${currentUsername}_slide_${i+1}.jpg`);
-        }
-        
-        downloadAllBtn.innerText = originalText;
-    };
+    if (downloadAllBtn) {
+        downloadAllBtn.onclick = async () => {
+            const originalText = downloadAllBtn.innerText;
+            downloadAllBtn.innerText = "Downloading all photos...";
+            for (let i = 0; i < currentSlides.length; i++) {
+                await new Promise(r => setTimeout(r, 700));
+                await forceDownload(currentSlides[i].url, `${currentUsername}_slide_${i+1}.jpg`);
+            }
+            downloadAllBtn.innerText = originalText;
+        };
+    }
 }
 
 function moveSlide(direction) {
     const total = currentSlides.length;
+    if (total === 0) return;
+
     currentSlideIndex += direction;
 
     if (currentSlideIndex < 0) currentSlideIndex = total - 1;
@@ -182,17 +233,29 @@ function moveSlide(direction) {
 function updateSlideUI() {
     const track = document.getElementById('sliderTrack');
     const counter = document.getElementById('slideCounter');
-    
-    track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+    if (!track) return;
+
+    const slideWidth = track.clientWidth || track.parentElement.clientWidth;
+    track.style.transform = `translateX(-${currentSlideIndex * slideWidth}px)`;
     counter.textContent = `${currentSlideIndex + 1} / ${currentSlides.length}`;
 
     // Update tombol download untuk foto yang sedang aktif
-    const currentUrl = currentSlides[currentSlideIndex].url;
+    const currentUrl = currentSlides[currentSlideIndex] && currentSlides[currentSlideIndex].url;
     const btn = document.getElementById('btnDownloadCurrentSlide');
-    
-    // Reset event listener lama agar tidak menumpuk
-    btn.onclick = null;
-    btn.onclick = () => {
-        forceDownload(currentUrl, `${currentUsername}_slide_${currentSlideIndex + 1}.jpg`, btn);
-    };
+    if (btn) {
+        btn.onclick = null;
+        if (currentUrl) {
+            btn.onclick = () => {
+                forceDownload(currentUrl, `${currentUsername}_slide_${currentSlideIndex + 1}.jpg`, btn);
+            };
+            btn.style.display = 'inline-block';
+        } else {
+            btn.style.display = 'none';
+        }
+    }
 }
+
+// Recalculate slide transform on resize so layout keeps correct
+window.addEventListener('resize', ()=>{
+    try { updateSlideUI(); } catch(e){}
+});
