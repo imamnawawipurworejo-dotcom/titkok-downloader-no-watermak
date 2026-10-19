@@ -1,3 +1,8 @@
+/* Layout fix: ensure page-wrap centers and body not restricting width on desktop/mobile */
+html, body { width: 100%; }
+body { display: block; }
+.page-wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
+
 /* Responsive fixes to ensure mobile users can zoom and see full content
    - Allow flexible shrinking of flex children
    - Make media elements fully responsive
