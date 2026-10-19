@@ -1,17 +1,23 @@
 (function(){
-  // Enhanced music player: autoplay attempt on enter, continuous play, and beat animation per track
+  // Enhanced music player with WebAudio analyser to animate beats
   const playlistPath = '/music/playlist.json';
   let playlist = [];
   let current = 0;
   let audio = null;
   let isPlaying = false;
-  let audioReady = false;
+
+  // WebAudio analyser state
+  let audioContext = null;
+  let analyser = null;
+  let dataArray = null;
+  let sourceNode = null;
+  let rafId = null;
 
   function qs(id){ return document.getElementById(id); }
   function setTitle(t){ const el = qs('musicTitle'); if(el) el.textContent = t; }
 
-  function addPlayingClass(){ const w = document.getElementById('musicWidget'); if(w) w.classList.add('playing'); }
-  function removePlayingClass(){ const w = document.getElementById('musicWidget'); if(w) w.classList.remove('playing'); }
+  function addPlayingClass(){ const w = qs('musicWidget'); if(w) w.classList.add('playing'); }
+  function removePlayingClass(){ const w = qs('musicWidget'); if(w) w.classList.remove('playing'); }
 
   function createAudioIfNeeded() {
     if (audio) return;
@@ -23,7 +29,7 @@
     audio.addEventListener('ended', () => {
       isPlaying = false;
       updatePlayIcons();
-      // small delay before loading next to allow UI animation
+      stopVisualiser();
       setTimeout(()=> next(), 120);
     });
     audio.addEventListener('error', (e) => console.warn('Audio error', e));
@@ -33,11 +39,13 @@
       isPlaying = true;
       updatePlayIcons();
       addPlayingClass();
+      trySetupAnalyser();
     });
     audio.addEventListener('pause', () => {
       isPlaying = false;
       updatePlayIcons();
       removePlayingClass();
+      stopVisualiser();
     });
   }
 
@@ -47,34 +55,26 @@
     const tr = playlist[current];
     if(!tr) return;
     createAudioIfNeeded();
-    // encode filename for URLs with spaces or special chars
-    // but preserve slashes if any; here files are in /music/
     audio.src = '/music/' + encodeURIComponent(tr.file);
     try { audio.load(); } catch(e){}
-    audioReady = true;
     setTitle(tr.title || tr.file);
-    // trigger a small visual beat when track is loaded
     pulseBeatOnce();
-    if (autoplay) {
-      play();
-    }
+    if (autoplay) play();
   }
 
   async function play(){
     if(!audio) return;
     try {
       await audio.play();
-      isPlaying = true; updatePlayIcons();
-      addPlayingClass();
+      isPlaying = true; updatePlayIcons(); addPlayingClass(); trySetupAnalyser();
     } catch(err){
-      // autoplay blocked
       showPlayOverlay();
     }
   }
-  function pause(){ if(audio){ audio.pause(); isPlaying=false; updatePlayIcons(); removePlayingClass(); } }
+  function pause(){ if(audio){ audio.pause(); isPlaying=false; updatePlayIcons(); removePlayingClass(); stopVisualiser(); } }
 
-  async function next(){ loadTrack(current+1, /*autoplay*/ true); }
-  function prev(){ loadTrack(current-1, /*autoplay*/ true); }
+  function next(){ loadTrack(current+1, true); }
+  function prev(){ loadTrack(current-1, true); }
 
   function updatePlayIcons(){
     const ico = qs('playPause');
@@ -96,7 +96,7 @@
 
   function tryEnableAudio(){
     if(!audio) return;
-    audio.play().then(()=>{ isPlaying = true; updatePlayIcons(); addPlayingClass(); }).catch(()=>{});
+    audio.play().then(()=>{ isPlaying = true; updatePlayIcons(); addPlayingClass(); trySetupAnalyser(); }).catch(()=>{});
   }
 
   function bindControls(){
@@ -116,38 +116,75 @@
       if(!audio) return;
       try {
         await audio.play();
-        isPlaying = true; updatePlayIcons(); addPlayingClass();
-      } catch(e){ /* still blocked */ }
+        isPlaying = true; updatePlayIcons(); addPlayingClass(); trySetupAnalyser();
+      } catch(e){ }
       document.removeEventListener('click', tryEnable, true);
     };
     document.addEventListener('click', tryEnable, true);
   }
 
-  // small one-time pulse animation when track starts/loads
   function pulseBeatOnce(){
-    const w = document.getElementById('musicWidget');
+    const w = qs('musicWidget');
     if(!w) return;
     w.classList.remove('pulse-once');
-    // force reflow
     void w.offsetWidth;
     w.classList.add('pulse-once');
-    // remove after animation ends
     setTimeout(()=> w.classList.remove('pulse-once'), 700);
   }
 
-  // Attempt autoplay when page visible (some browsers allow autoplay if muted or user gesture existed previously)
-  function tryAutoplayOnEnter(){
-    // Try once when window loads
-    window.addEventListener('load', ()=>{
-      setTimeout(()=>{
-        try { if(audio) audio.play().then(()=>{ isPlaying=true; updatePlayIcons(); addPlayingClass(); }).catch(()=>{ }); } catch(e){}
-      }, 200);
-    });
+  // WebAudio analyser functions
+  function trySetupAnalyser(){
+    try {
+      if(!audio) return;
+      if(!audioContext) setupAnalyser();
+      if(audioContext && audioContext.state === 'suspended') audioContext.resume().catch(()=>{});
+    } catch(e){ console.warn('analyser setup failed', e); }
+  }
 
-    // Also try when tab becomes visible again
+  function setupAnalyser(){
+    try {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      sourceNode = audioContext.createMediaElementSource(audio);
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      sourceNode.connect(analyser);
+      analyser.connect(audioContext.destination);
+      startVisualiser();
+    } catch(e){ console.warn('setupAnalyser error', e); }
+  }
+
+  function startVisualiser(){
+    if(!analyser) return;
+    stopVisualiser();
+    const widget = qs('musicWidget');
+    function frame(){
+      analyser.getByteFrequencyData(dataArray);
+      let lowerSum = 0;
+      const lowerCount = Math.max(1, Math.floor(dataArray.length * 0.25));
+      for(let i=0;i<lowerCount;i++) lowerSum += dataArray[i];
+      const avg = lowerSum / lowerCount / 255;
+      const intensity = Math.min(1, Math.pow(avg, 0.9) * 1.6);
+      const scale = (1 + intensity * 0.12).toFixed(3);
+      if(widget) widget.style.setProperty('--music-scale', scale);
+      rafId = requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function stopVisualiser(){
+    if(rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    const widget = qs('musicWidget');
+    if(widget) widget.style.setProperty('--music-scale', '1');
+  }
+
+  function tryAutoplayOnEnter(){
+    window.addEventListener('load', ()=>{
+      setTimeout(()=>{ try { if(audio) audio.play().then(()=>{ isPlaying=true; updatePlayIcons(); addPlayingClass(); trySetupAnalyser(); }).catch(()=>{}); } catch(e){} }, 200);
+    });
     document.addEventListener('visibilitychange', ()=>{
       if(document.visibilityState === 'visible' && audio && !isPlaying){
-        try { audio.play().then(()=>{ isPlaying=true; updatePlayIcons(); addPlayingClass(); }).catch(()=>{}); } catch(e){}
+        try { audio.play().then(()=>{ isPlaying=true; updatePlayIcons(); addPlayingClass(); trySetupAnalyser(); }).catch(()=>{}); } catch(e){}
       }
     });
   }
@@ -161,10 +198,8 @@
     bindControls();
     enableOnFirstGesture();
     tryAutoplayOnEnter();
-    // initial attempt (may be blocked)
-    try { audio && audio.play().then(()=>{ isPlaying=true; updatePlayIcons(); addPlayingClass(); }).catch(()=>{ updatePlayIcons(); }); } catch(e){}
+    try { audio && audio.play().then(()=>{ isPlaying=true; updatePlayIcons(); addPlayingClass(); trySetupAnalyser(); }).catch(()=>{ updatePlayIcons(); }); } catch(e){}
   }).catch(()=>{ setTitle('No music'); });
 
-  // expose
   window.musicPlayer = { play, pause, next, prev, loadTrack };
 })();
