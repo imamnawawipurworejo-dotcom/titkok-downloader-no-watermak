@@ -42,7 +42,7 @@ async function fetchData() {
         // Reset video & audio controls to avoid leftover handlers
         if (videoPlayer) {
             videoPlayer.removeAttribute('src');
-            videoPlayer.load && videoPlayer.load();
+            if (videoPlayer.load) videoPlayer.load();
         }
         if (btnVideo) {
             btnVideo.removeAttribute('href');
@@ -101,6 +101,11 @@ async function fetchData() {
 
             // Setup slider with proper sizing and horizontal layout
             setupSlider(data.slides || []);
+
+            // Pause music if playing to avoid audio conflict
+            if (window.musicPlayer && typeof window.musicPlayer.pause === 'function') {
+                try { window.musicPlayer.pause(); } catch(e){}
+            }
         }
 
     } catch (error) {
@@ -191,6 +196,21 @@ function setupSlider(slides) {
         img.alt = slide.alt || '';
         // Prevent huge layout shifts by setting loading=lazy
         img.loading = 'lazy';
+
+        // Detect aspect ratio on load and mark landscape for cover display
+        img.addEventListener('load', () => {
+            if (img.naturalWidth && img.naturalHeight) {
+                if (img.naturalWidth > img.naturalHeight) {
+                    img.classList.add('landscape');
+                } else {
+                    img.classList.remove('landscape');
+                }
+            }
+            // ensure widths are set and UI updated after image loads
+            setSlideWidths();
+            updateSlideUI();
+        });
+
         item.appendChild(img);
         track.appendChild(item);
     });
@@ -201,7 +221,8 @@ function setupSlider(slides) {
         return;
     }
 
-    // Update UI and bind download all
+    // Set initial widths then update UI
+    setSlideWidths();
     updateSlideUI();
 
     const downloadAllBtn = document.getElementById('downloadAllBtn');
@@ -216,6 +237,18 @@ function setupSlider(slides) {
             downloadAllBtn.innerText = originalText;
         };
     }
+}
+
+function setSlideWidths() {
+    const wrapper = document.querySelector('.slider-wrapper');
+    const track = document.getElementById('sliderTrack');
+    if (!track || !wrapper) return;
+    const items = track.querySelectorAll('.slide-item');
+    const width = wrapper.clientWidth;
+    items.forEach(it => {
+        it.style.width = width + 'px';
+    });
+    // ensure track's total width equals items width sum (browser handles flex layout)
 }
 
 function moveSlide(direction) {
@@ -233,9 +266,10 @@ function moveSlide(direction) {
 function updateSlideUI() {
     const track = document.getElementById('sliderTrack');
     const counter = document.getElementById('slideCounter');
-    if (!track) return;
+    const wrapper = document.querySelector('.slider-wrapper');
+    if (!track || !wrapper) return;
 
-    const slideWidth = track.clientWidth || track.parentElement.clientWidth;
+    const slideWidth = wrapper.clientWidth;
     track.style.transform = `translateX(-${currentSlideIndex * slideWidth}px)`;
     counter.textContent = `${currentSlideIndex + 1} / ${currentSlides.length}`;
 
@@ -255,7 +289,11 @@ function updateSlideUI() {
     }
 }
 
-// Recalculate slide transform on resize so layout keeps correct
+// Recalculate slide transform and widths on resize so layout keeps correct
+let resizeTimeout = null;
 window.addEventListener('resize', ()=>{
-    try { updateSlideUI(); } catch(e){}
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(()=>{
+        try { setSlideWidths(); updateSlideUI(); } catch(e){}
+    }, 120);
 });
