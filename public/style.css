@@ -2,6 +2,7 @@
    Preserves all IDs and element structure used by script.js
    Adds music widget styles and ensures feature animations persist
    Adds proper slider styles so landscape/portrait slides display correctly
+   Adds mobile font-size rule to prevent iOS zoom on inputs
 */
 :root{
   --accent:#ff3b6b;
@@ -95,3 +96,13 @@ input[type='text']:focus, select:focus, button:focus{box-shadow:0 8px 24px rgba(
 
 /* small overlay shown if autoplay blocked */
 .play-overlay{position:fixed;inset:auto 16px 16px auto;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:60}
+
+/* Prevent iOS auto-zoom when focusing inputs: ensure >=16px on small screens */
+@media (max-width: 800px) {
+  input[type="text"],
+  select,
+  button,
+  .music-title {
+    font-size: 16px; /* prevents iOS auto-zoom */
+  }
+}

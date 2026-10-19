@@ -1,9 +1,9 @@
 {
   "tracks": [
-    { "file": "you and i.mp3", "title": "Track 1" },
-    { "file": "track2.mp3", "title": "Track 2" },
-    { "file": "track3.mp3", "title": "Track 3" },
-    { "file": "track4.mp3", "title": "Track 4" },
-    { "file": "track5.mp3", "title": "Track 5" }
+    { "file": "you and i.mp3", "title": "You and I" },
+    { "file": "kalaho.mp3", "title": "Kalaho" },
+    { "file": "rasah bali.mp3", "title": "Rasah Bali" },
+    { "file": "pupijaning atiku.mp3", "title": "Pupijaning Atiku" },
+    { "file": "halstage_audio.mp3", "title": "Halstage Audio" }
   ]
 }
