@@ -141,3 +141,11 @@ input[type='text']:focus, select:focus, button:focus{box-shadow:0 8px 24px rgba(
 .music-controls{display:flex;gap:8px}
 .music-controls .ctrl{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:#fff;cursor:pointer}
 .play-overlay{position:fixed;inset:auto 16px 16px auto;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+
+/* Music widget animations: playing state + pulse and beat effect */
+#musicWidget { transition: transform .18s ease, box-shadow .18s ease; }
+#musicWidget.playing { box-shadow: 0 8px 40px rgba(255,59,107,0.08); transform: translateY(-2px); }
+#musicWidget.pulse-once { animation: music-pulse 0.7s ease; }
+@keyframes music-pulse { 0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,59,107,0); } 30% { transform: scale(1.03); box-shadow: 0 10px 30px rgba(255,59,107,0.12); } 100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,59,107,0); } }
+#musicWidget.playing .music-btn i { animation: beat 1000ms infinite ease-in-out; transform-origin: center; }
+@keyframes beat { 0%{ transform: scale(1);} 50%{ transform: scale(1.06);} 100%{ transform: scale(1);} }
