@@ -21,7 +21,7 @@
     </header>
 
     <main class="container">
-      <!-- Animated header (separate file so you can swap/replace media) -->
+      <!-- Animated header -->
       <div class="header-anim-wrap">
         <iframe class="header-anim" src="animations/header.html" title="Header animation" aria-hidden="true" frameborder="0"></iframe>
 
@@ -52,22 +52,24 @@
         </div>
 
         <div id="loader" class="loader hidden" aria-hidden="true"></div>
+
+        <div class="quick-help">Tempel tautan → pilih format → klik Unduh. Preview muncul di bawah jika tersedia.</div>
       </section>
 
       <section class="features-grid" aria-hidden="false">
-        <div class="feature">
+        <div class="feature" style="--d:0s">
           <div class="icon"><i class="fas fa-bolt"></i></div>
           <div class="label">Cepat</div>
         </div>
-        <div class="feature">
+        <div class="feature" style="--d:0.08s">
           <div class="icon"><i class="fas fa-shield-alt"></i></div>
           <div class="label">Aman</div>
         </div>
-        <div class="feature">
+        <div class="feature" style="--d:0.16s">
           <div class="icon"><i class="fas fa-star"></i></div>
           <div class="label">HD</div>
         </div>
-        <div class="feature">
+        <div class="feature" style="--d:0.24s">
           <div class="icon"><i class="fas fa-mobile-alt"></i></div>
           <div class="label">Responsif</div>
         </div>
@@ -111,13 +113,13 @@
           <div class="step"><div class="step-num">4</div><div class="step-text">Gunakan tombol hasil untuk menyimpan file.</div></div>
         </div>
 
-        <p class="note">Jika preview tidak muncul, buka tautan hasil di tab baru atau cek tautan sumber.</p>
+        <p class="note">Jika preview tidak muncul, buka tautan hasil di tab baru atau periksa tautan sumber.</p>
       </section>
 
       <footer class="footer">
         <div class="footer-inner">
           <div>IMZXS404 FORUM © 2026</div>
-          <div class="footer-action">Ganti video footer dengan menaruh file di /public/animations/ dan ubah tag di bawah sesuai nama file.</div>
+          <div class="footer-help">Masukkan tautan, pilih format, lalu klik "Unduh Sekarang".</div>
         </div>
       </footer>
     </main>
