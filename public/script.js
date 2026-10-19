@@ -134,7 +134,7 @@ async function fetchData() {
 
 /**
  * FUNGSI INTI: Force Download & Bypass Access Denied
- * Menggunakan referrerPolicy: 'no-referrer' untuk menghindari Error 403 TikTok
+ * Menggunakan server proxy /api/download?download=1 untuk menghindari CORS dan blokir browser
  */
 async function forceDownload(url, filename, btnElement = null) {
     let originalText = '';
@@ -148,29 +148,29 @@ async function forceDownload(url, filename, btnElement = null) {
     }
 
     try {
-        // Fetch file sebagai BLOB. 
-        // PENTING: referrerPolicy: 'no-referrer' mencegah browser mengirim header Referer
-        // yang menyebabkan "Access Denied" pada link TikTok.
-        const response = await fetch(url, { 
-            referrerPolicy: 'no-referrer' 
+        // Panggil server proxy untuk menghindari CORS / browser block
+        const proxyUrl = `/api/download?download=1&url=${encodeURIComponent(url)}`;
+        const resp = await fetch(proxyUrl, {
+            method: 'GET',
+            headers: {
+                'X-Download-Filename': filename || 'download.bin'
+            }
         });
 
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const blob = await response.blob();
-        
-        // Buat URL lokal di browser
+        if (!resp.ok) throw new Error('Download proxy failed: ' + resp.status + ' ' + resp.statusText);
+
+        const blob = await resp.blob();
         const blobUrl = window.URL.createObjectURL(blob);
-        
-        // Buat elemen <a> virtual untuk men-trigger download
+
         const link = document.createElement('a');
         link.href = blobUrl;
-        link.download = filename; // Atribut ini memaksa file tersimpan
-        
+        // Jika server mengirim Content-Disposition, browser akan menuruti; tetap set fallback filename
+        link.download = filename || 'download.bin';
         document.body.appendChild(link);
-        link.click(); // Klik otomatis
-        
-        // Bersihkan memori
+
+        // Klik berasal dari handler klik -> biasanya tidak diblok
+        link.click();
+
         document.body.removeChild(link);
         window.URL.revokeObjectURL(blobUrl);
 
