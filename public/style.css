@@ -2,7 +2,7 @@
    Preserves all IDs and element structure used by script.js
    Adds music widget styles and ensures feature animations persist
    Adds proper slider styles so landscape/portrait slides display correctly
-   Adds mobile font-size rule to prevent iOS zoom on inputs
+   Adds mobile font-size rule to prevent iOS zoom and disables pinch zoom in viewport
 */
 :root{
   --accent:#ff3b6b;
@@ -15,7 +15,7 @@
   --muted:#9aa3b2;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,'Helvetica Neue',Arial}
+html,body{height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,'Helvetica Neue',Arial;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;text-size-adjust:100%}
 body{background:radial-gradient(1200px 600px at 10% 10%, rgba(255,59,107,0.06), transparent), linear-gradient(180deg,var(--bg-1),var(--bg-2));color:var(--text);display:flex;align-items:flex-start;justify-content:center;padding:28px}
 .container{width:100%;max-width:980px}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
@@ -52,16 +52,12 @@ input[type='text']{background:transparent;border:0;color:var(--text);outline:non
 .result-card{transition:transform .25s,opacity .25s}
 .result-card.show{opacity:1;transform:translateY(0)}
 .slider-wrapper{background:rgba(255,255,255,0.02);padding:10px;border-radius:12px;min-height:120px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-/* Slider track: horizontal flex row where each slide takes full width of wrapper */
 #sliderTrack{display:flex;flex-direction:row;transition:transform .45s cubic-bezier(.2,.9,.3,1);width:100%;}
 .slide-item{flex:0 0 100%;display:flex;align-items:center;justify-content:center;padding:6px}
 .slide-img{width:100%;height:420px;object-fit:contain;border-radius:8px;background:#000;display:block}
-
-/* On small screens use taller/adjusted height */
 @media(max-width:800px){
   .slide-img{height:60vh}
 }
-
 .action-buttons{display:flex;gap:10px;margin-top:10px}
 .btn-secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:#fff;text-decoration:none;transition:transform .12s}
 .btn-secondary:hover{transform:translateY(-2px)}
@@ -79,30 +75,33 @@ video{width:100%;border-radius:10px;background:#000}
   .features-grid{grid-template-columns:repeat(2,1fr)}
   .header-anim{height:110px}
   .hero{padding:16px}
+  input[type="text"],
+  select,
+  button,
+  .music-title {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+  }
+  .logo i,
+  .primary,
+  .btn-secondary,
+  .lang-btn {
+    transform: none !important;
+    transition: none !important;
+  }
+  button, a, input, select, .primary, .btn-secondary {
+    touch-action: manipulation;
+    -ms-touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.05);
+  }
 }
-/* subtle animation for header shapes */
 @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 .hero .logo{animation:floaty 4s ease-in-out infinite}
-/* focus styles */
 input[type='text']:focus, select:focus, button:focus{box-shadow:0 8px 24px rgba(107,140,255,0.08);outline:none}
-
-/* Music widget styles */
 .music-widget{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));border:1px solid rgba(255,255,255,0.02);margin-bottom:12px}
 .music-left{display:flex;align-items:center;gap:12px}
 .music-btn{width:44px;height:44px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
 .music-title{font-size:0.95rem;color:var(--muted)}
 .music-controls{display:flex;gap:8px}
 .music-controls .ctrl{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:#fff;cursor:pointer}
-
-/* small overlay shown if autoplay blocked */
 .play-overlay{position:fixed;inset:auto 16px 16px auto;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:60}
-
-/* Prevent iOS auto-zoom when focusing inputs: ensure >=16px on small screens */
-@media (max-width: 800px) {
-  input[type="text"],
-  select,
-  button,
-  .music-title {
-    font-size: 16px; /* prevents iOS auto-zoom */
-  }
-}
