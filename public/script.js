@@ -95,8 +95,23 @@ async function fetchData() {
             // Photo (slideshow) handling
             photoContainer.classList.remove('hidden');
 
-            // Ensure audio/download buttons for video are hidden
-            if (btnAudio) { btnAudio.style.display = 'none'; btnAudio.onclick = null; }
+            // If API provides an mp3 for slideshow, allow audio download too
+            const photoAudioUrl = (data.mp3 && data.mp3[0]) || null;
+
+            if (photoAudioUrl && btnAudio) {
+                btnAudio.style.display = 'inline-block';
+                btnAudio.removeAttribute('href');
+                btnAudio.onclick = (e) => {
+                    e.preventDefault();
+                    forceDownload(photoAudioUrl, `${currentUsername}_audio.mp3`, btnAudio);
+                };
+            } else if (btnAudio) {
+                // no audio available for this slideshow
+                btnAudio.style.display = 'none';
+                btnAudio.onclick = null;
+            }
+
+            // Hide video download button for slides
             if (btnVideo) { btnVideo.style.display = 'none'; btnVideo.onclick = null; }
 
             // Setup slider with proper sizing and horizontal layout
