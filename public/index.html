@@ -21,11 +21,16 @@
     </header>
 
     <main class="container">
-      <div class="hero">
-        <div class="logo"><i class="fab fa-tiktok"></i></div>
-        <div class="title-block">
-          <h1 class="title">TikTok <span class="accent">Downloader</span></h1>
-          <div class="subtitle">Unduh video TikTok tanpa watermark — MP4, MP3, dan slideshow foto</div>
+      <!-- Animated header (separate file so you can swap/replace media) -->
+      <div class="header-anim-wrap">
+        <iframe class="header-anim" src="animations/header.html" title="Header animation" aria-hidden="true" frameborder="0"></iframe>
+
+        <div class="hero">
+          <div class="logo"><i class="fab fa-tiktok"></i></div>
+          <div class="title-block">
+            <h1 class="title">TikTok <span class="accent">Downloader</span></h1>
+            <div class="subtitle">Unduh video TikTok tanpa watermark — MP4, MP3, slideshow foto</div>
+          </div>
         </div>
       </div>
 
@@ -49,29 +54,29 @@
         <div id="loader" class="loader hidden" aria-hidden="true"></div>
       </section>
 
-      <section class="features-grid">
+      <section class="features-grid" aria-hidden="false">
         <div class="feature">
           <div class="icon"><i class="fas fa-bolt"></i></div>
-          <div class="label">SUPER CEPAT</div>
+          <div class="label">Cepat</div>
         </div>
         <div class="feature">
           <div class="icon"><i class="fas fa-shield-alt"></i></div>
-          <div class="label">AMAN</div>
+          <div class="label">Aman</div>
         </div>
         <div class="feature">
           <div class="icon"><i class="fas fa-star"></i></div>
-          <div class="label">KUALITAS TINGGI</div>
+          <div class="label">HD</div>
         </div>
         <div class="feature">
           <div class="icon"><i class="fas fa-mobile-alt"></i></div>
-          <div class="label">RESPONSIF</div>
+          <div class="label">Responsif</div>
         </div>
       </section>
 
       <section id="resultArea" class="card result-card hidden" aria-live="polite">
         <div class="user-info">
           <h3 id="resUsername">Pengguna</h3>
-          <div class="stats"><span title="Views"><i class="fas fa-play"></i> <span id="resViews">0</span></span><span title="Likes"><i class="fas fa-heart"></i> <span id="resLikes">0</span></span></div>
+          <div class="stats"><span title="Views"><i class="fas fa-play"></i> <span id="resViews">0</span></span><span title="Likes"><i class="fas fa-heart"></i> <span id="resLikes">0</span></span><!-- ... --></div>
         </div>
 
         <div id="videoContainer" class="hidden">
@@ -100,16 +105,21 @@
         <h2><i class="fas fa-book-open"></i> Cara Penggunaan</h2>
 
         <div class="steps">
-          <div class="step"><div class="step-num">1</div><div class="step-text">Buka aplikasi TikTok → pilih video, tekan "Bagikan" → "Salin tautan".</div></div>
-          <div class="step"><div class="step-num">2</div><div class="step-text">Kembali ke situs ini, tempel link ke kotak input.</div></div>
-          <div class="step"><div class="step-num">3</div><div class="step-text">Pilih format (MP4/MP3) lalu klik "Unduh Sekarang".</div></div>
-          <div class="step"><div class="step-num">4</div><div class="step-text">Gunakan tombol unduh pada hasil untuk menyimpan file.</div></div>
+          <div class="step"><div class="step-num">1</div><div class="step-text">Buka TikTok, pilih video, tekan "Bagikan" → "Salin tautan".</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text">Tempel link ke kotak input di situs ini.</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text">Pilih format lalu klik "Unduh Sekarang".</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-text">Gunakan tombol hasil untuk menyimpan file.</div></div>
         </div>
 
-        <p class="note">Catatan: Jika preview tidak muncul, coba buka tautan hasil di tab baru atau periksa ulang tautan sumber.</p>
+        <p class="note">Jika preview tidak muncul, buka tautan hasil di tab baru atau cek tautan sumber.</p>
       </section>
 
-      <footer class="footer">IMZXS404 FORUM © 2026</footer>
+      <footer class="footer">
+        <div class="footer-inner">
+          <div>IMZXS404 FORUM © 2026</div>
+          <div class="footer-action">Ganti video footer dengan menaruh file di /public/animations/ dan ubah tag di bawah sesuai nama file.</div>
+        </div>
+      </footer>
     </main>
   </div>
 
