@@ -1,5 +1,6 @@
 /* UI: livelier styles, animations, interactions
    Preserves all IDs and element structure used by script.js
+   Adds music widget styles and ensures feature animations persist
 */
 :root{
   --accent:#ff3b6b;
@@ -42,7 +43,7 @@ input[type='text']{background:transparent;border:0;color:var(--text);outline:non
 .hidden{display:none!important}
 @keyframes spin{to{transform:rotate(360deg)}}
 .features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
-.feature{background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.02));padding:14px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:10px;transform:translateY(8px);opacity:0;animation:pop .6s cubic-bezier(.2,.9,.3,1) forwards;animation-delay:var(--d)}
+.feature{background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.02));padding:14px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:10px;transform:none;opacity:1;animation:pop .6s cubic-bezier(.2,.9,.3,1) forwards;animation-delay:var(--d);animation-fill-mode:both}
 .feature .icon i{font-size:20px;color:var(--accent)}
 .feature .label{font-weight:800;color:var(--muted)}
 @keyframes pop{0%{opacity:0;transform:translateY(10px) scale(.98)}60%{opacity:1;transform:translateY(-6px) scale(1.02)}100%{transform:translateY(0) scale(1)}}
@@ -72,3 +73,14 @@ video{width:100%;border-radius:10px;background:#000}
 .hero .logo{animation:floaty 4s ease-in-out infinite}
 /* focus styles */
 input[type='text']:focus, select:focus, button:focus{box-shadow:0 8px 24px rgba(107,140,255,0.08);outline:none}
+
+/* Music widget styles */
+.music-widget{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));border:1px solid rgba(255,255,255,0.02);margin-bottom:12px}
+.music-left{display:flex;align-items:center;gap:12px}
+.music-btn{width:44px;height:44px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
+.music-title{font-size:0.95rem;color:var(--muted)}
+.music-controls{display:flex;gap:8px}
+.music-controls .ctrl{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:#fff;cursor:pointer}
+
+/* small overlay shown if autoplay blocked */
+.play-overlay{position:fixed;inset:auto 16px 16px auto;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:60}

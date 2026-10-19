@@ -34,6 +34,19 @@
         </div>
       </div>
 
+      <!-- Music widget: reads /music/playlist.json and plays up to 5 tracks -->
+      <div id="musicWidget" class="music-widget" aria-hidden="false">
+        <div class="music-left">
+          <button id="playToggle" class="music-btn" aria-label="Play music"><i class="fas fa-play"></i></button>
+          <div id="musicTitle" class="music-title">No music loaded</div>
+        </div>
+        <div class="music-controls">
+          <button id="prevTrack" class="ctrl"><i class="fas fa-backward"></i></button>
+          <button id="playPause" class="ctrl"><i class="fas fa-play"></i></button>
+          <button id="nextTrack" class="ctrl"><i class="fas fa-forward"></i></button>
+        </div>
+      </div>
+
       <section class="card input-card">
         <div class="input-row">
           <div class="input-group">
@@ -125,6 +138,7 @@
     </main>
   </div>
 
+  <script src="music/player.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
